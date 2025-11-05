@@ -55,10 +55,10 @@ public class GitflowVersionTester {
 
 	/**
 	 * Returns true if the {@code git flow} version can be determined
-	 * and is any AVH version ({@code #contains("AVH")}) and
-	 * not the unmaintained NVIE version.
+	 * and is either a maintained AVH build or the modern git-flow-next
+	 * implementation, rather than the unmaintained NVIE release.
 	 *
-	 * @return true if we think the git flow version is an AVH version.
+	 * @return true when the installed git flow CLI is known to be supported.
 	 */
 	public boolean isSupportedVersion() {
 		if (version == null) {
