@@ -9,7 +9,7 @@ repositories {
 }
 
 group = "gitflow4idea-plus"
-version = "0.8.0"
+version = "0.9.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -36,6 +36,16 @@ tasks {
         version.set("${project.version}")
         sinceBuild.set("231.8109.175")
         changeNotes.set("""
+            <H2>Changelog for 0.9.0</H2>
+            <ul>
+              <li>Add support for git-flow-next #45</li>
+              <li>Detect git-flow-next by checking for gitflow.branch.main.type config key</li>
+              <li>Use hardcoded branch names (main and develop) for git-flow-next</li>
+              <li>Add fallback logic to support both old git-flow AVH and new git-flow-next config formats</li>
+              <li>Update init dialog to use smart defaults: detect existing branches (main/master, develop/dev)</li>
+              <li>Show dropdown lists with popular branch names when 'Use non-default configuration' is enabled</li>
+            </ul>
+            
             <H2>Changelog for 0.7.13</H2>
             <ul>
               <li>Fix "(class com.intellij.openapi.project.impl.ProjectImpl) has already been disposed" #29 </li>
