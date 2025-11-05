@@ -33,9 +33,9 @@ public class UnsupportedVersionWidgetPresentation implements StatusBarWidget.Tex
 	@Override
 	public Consumer<MouseEvent> getClickConsumer() {
 		return mouseEvent -> {
-			MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo("Unsupported Git Flow version", "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin")
-					.yesText("More information (open browser)")
-					.noText("no");
+			MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo("Unsupported Git Flow version", "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin.\nInstall or upgrade to git-flow-next to continue.")
+				.yesText("More information (open browser)")
+				.noText("no");
 			if (builder.ask(mouseEvent.getComponent())) {
 				BrowserUtil.browse("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
 			}

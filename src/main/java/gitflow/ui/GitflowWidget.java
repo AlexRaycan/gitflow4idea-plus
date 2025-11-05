@@ -164,9 +164,9 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
                 final Point at = new Point(0, -dimension.height);
                 popup.show(new RelativePoint(mouseEvent.getComponent(), at));
             } else {
-                MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo("Unsupported Git Flow version", "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin")
-                        .yesText("More information (open browser)")
-                        .noText("no");
+        MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo("Unsupported Git Flow version", "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin.\nInstall or upgrade to git-flow-next to continue.")
+            .yesText("More information (open browser)")
+            .noText("no");
                 if (builder.ask(getProject())) {
                     BrowserUtil.browse("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
                 }

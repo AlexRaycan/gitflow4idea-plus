@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.NotNull;
 
 //import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -60,19 +61,23 @@ public class GitflowVersionTester {
 	 * @return true if we think the git flow version is an AVH version.
 	 */
 	public boolean isSupportedVersion() {
-		return version != null && version.contains("AVH");
+		if (version == null) {
+			return false;
+		}
+
+		String normalized = version.toLowerCase(Locale.ROOT);
+		return normalized.contains("avh") || normalized.contains("git-flow-next") || normalized.contains("git flow next");
 	}
 
 	public void init(){
-		String returnedVersion = null;
 		try {
-			returnedVersion = gitflow.version(project).getOutputOrThrow();
-			logger.info("git flow version: " + version);
+			String returnedVersion = gitflow.version(project).getOutputOrThrow();
+			if (returnedVersion != null) {
+				version = returnedVersion.trim();
+				logger.info("git flow version: " + version);
+			}
 		} catch (Exception e) {
 			logger.error("Could not determine git flow version", e);
-		}
-		if (returnedVersion != null){
-			version = returnedVersion;
 		}
 	}
 	
