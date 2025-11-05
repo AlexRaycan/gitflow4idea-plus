@@ -51,13 +51,63 @@ public class GitflowInitOptionsDialog extends DialogWrapper {
         });
     }
 
+    /**
+     * Find the best production branch from existing branches.
+     * Priority: main > master > production > first available branch > "main" as fallback
+     */
+    private String findBestProductionBranch() {
+        if (localBranches.contains("main")) return "main";
+        if (localBranches.contains("master")) return "master";
+        if (localBranches.contains("production")) return "production";
+        if (!localBranches.isEmpty()) return localBranches.get(0);
+        return "main";
+    }
+
+    /**
+     * Find the best development branch from existing branches.
+     * Priority: develop > dev > development > "develop" as fallback
+     */
+    private String findBestDevelopmentBranch() {
+        if (localBranches.contains("develop")) return "develop";
+        if (localBranches.contains("dev")) return "dev";
+        if (localBranches.contains("development")) return "development";
+        return "develop";
+    }
+
     private void setLocalBranchesComboBox(boolean isNonDefault){
+        String defaultProduction = findBestProductionBranch();
+        String defaultDevelopment = findBestDevelopmentBranch();
+        
         if (isNonDefault){
-            developmentBranchComboBox.setModel(new CollectionComboBoxModel<>(localBranches));
-            productionBranchComboBox.setModel(new CollectionComboBoxModel<>(localBranches));
+            // Combine popular branch names with existing local branches
+            List<String> productionBranches = Arrays.asList("main", "master", "production");
+            List<String> developmentBranches = Arrays.asList("develop", "development", "dev");
+            
+            // Add existing local branches to the options
+            for (String branch : localBranches) {
+                if (!productionBranches.contains(branch)) {
+                    productionBranches = new java.util.ArrayList<>(productionBranches);
+                    ((java.util.ArrayList<String>) productionBranches).add(branch);
+                }
+                if (!developmentBranches.contains(branch)) {
+                    developmentBranches = new java.util.ArrayList<>(developmentBranches);
+                    ((java.util.ArrayList<String>) developmentBranches).add(branch);
+                }
+            }
+            
+            productionBranchComboBox.setModel(new CollectionComboBoxModel<>(productionBranches));
+            productionBranchComboBox.setEditable(true);
+            productionBranchComboBox.setSelectedItem(defaultProduction);
+            
+            developmentBranchComboBox.setModel(new CollectionComboBoxModel<>(developmentBranches));
+            developmentBranchComboBox.setEditable(true);
+            developmentBranchComboBox.setSelectedItem(defaultDevelopment);
         } else {
-            developmentBranchComboBox.setModel(new CollectionComboBoxModel<>(Collections.singletonList("develop")));
-            productionBranchComboBox.setModel(new CollectionComboBoxModel<>(Collections.singletonList("master")));
+            // Use smart defaults based on existing branches
+            developmentBranchComboBox.setModel(new CollectionComboBoxModel<>(Collections.singletonList(defaultDevelopment)));
+            developmentBranchComboBox.setEditable(false);
+            productionBranchComboBox.setModel(new CollectionComboBoxModel<>(Collections.singletonList(defaultProduction)));
+            productionBranchComboBox.setEditable(false);
         }
     }
 
