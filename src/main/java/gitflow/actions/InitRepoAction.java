@@ -1,6 +1,7 @@
 package gitflow.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.util.Key;
@@ -8,6 +9,7 @@ import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;
+import gitflow.GitflowConfigUtil;
 import gitflow.GitflowInitOptions;
 import gitflow.ui.GitflowInitOptionsDialog;
 import gitflow.ui.NotifyUtil;
@@ -65,14 +67,32 @@ public class InitRepoAction extends GitflowAction {
 
                     if (result.success()) {
                         String successMessage = getSuccessMessage();
+                        
+                        System.out.println("InitRepoAction: Git flow init success");
+                        
+                        // Force config reload BEFORE notifying the widget
+                        GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
+                        gitflowConfigUtil.update();
+                        
+                        System.out.println("InitRepoAction: Config updated - master=" + gitflowConfigUtil.masterBranch + ", develop=" + gitflowConfigUtil.developBranch);
+                        
+                        // Force branch util refresh
+                        GitflowBranchUtilManager.update(myProject);
+                        
+                        // Update the repository
+                        myRepo.update();
+                        
+                        // Notify success
                         NotifyUtil.notifySuccess(myProject, "", successMessage);
+                        
+                        // Update the widget AFTER config is reloaded - use invokeLater to ensure UI update
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            System.out.println("InitRepoAction: Notifying repository changed");
+                            myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(myRepo);
+                        });
                     } else {
                         NotifyUtil.notifyError(myProject, "Error", result.getErrorOutputAsJoinedString() + "Please have a look at the Version Control console for more details");
                     }
-
-                    //update the widget
-                    myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(myRepo);
-                    myRepo.update();
                 }
             }.queue();
         }

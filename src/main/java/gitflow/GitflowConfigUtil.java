@@ -24,6 +24,7 @@ import java.util.Map;
 
 public class GitflowConfigUtil {
 
+    // Old git-flow AVH config keys
     public static final String BRANCH_MASTER = "gitflow.branch.master";
     public static final String BRANCH_DEVELOP = "gitflow.branch.develop";
     public static final String PREFIX_FEATURE = "gitflow.prefix.feature";
@@ -32,6 +33,16 @@ public class GitflowConfigUtil {
     public static final String PREFIX_BUGFIX = "gitflow.prefix.bugfix";
     public static final String PREFIX_SUPPORT = "gitflow.prefix.support";
     public static final String PREFIX_VERSIONTAG = "gitflow.prefix.versiontag";
+    
+    // New git-flow-next config keys
+    public static final String BRANCH_MAIN = "gitflow.branch.main";
+    public static final String BRANCH_MAIN_TYPE = "gitflow.branch.main.type";
+    public static final String BRANCH_DEVELOP_TYPE = "gitflow.branch.develop.type";
+    public static final String BRANCH_FEATURE_PREFIX = "gitflow.branch.feature.prefix";
+    public static final String BRANCH_RELEASE_PREFIX = "gitflow.branch.release.prefix";
+    public static final String BRANCH_HOTFIX_PREFIX = "gitflow.branch.hotfix.prefix";
+    public static final String BRANCH_BUGFIX_PREFIX = "gitflow.branch.bugfix.prefix";
+    public static final String BRANCH_SUPPORT_PREFIX = "gitflow.branch.support.prefix";
 
     private static  Map<Project, Map<String, GitflowConfigUtil>> gitflowConfigUtilMap = new HashMap<Project, Map<String, GitflowConfigUtil>>();
 
@@ -79,14 +90,58 @@ public class GitflowConfigUtil {
         try{
             Future<?> f = ApplicationManager.getApplication().executeOnPooledThread(() -> {
                 try {
-                    masterBranch = GitConfigUtil.getValue(project, root, BRANCH_MASTER);
-                    developBranch = GitConfigUtil.getValue(project, root, BRANCH_DEVELOP);
+                    // Check if this is git-flow-next by looking for new-style config
+                    String mainType = GitConfigUtil.getValue(project, root, BRANCH_MAIN_TYPE);
+                    String developType = GitConfigUtil.getValue(project, root, BRANCH_DEVELOP_TYPE);
+                    boolean isGitflowNext = (mainType != null || developType != null);
+                    
+                    // For git-flow-next, branch names are hardcoded to "main" and "develop"
+                    if (isGitflowNext) {
+                        masterBranch = "main";
+                        developBranch = "develop";
+                    } else {
+                        // Try old format for branch names
+                        masterBranch = GitConfigUtil.getValue(project, root, BRANCH_MASTER);
+                        developBranch = GitConfigUtil.getValue(project, root, BRANCH_DEVELOP);
+                    }
+                    
+                    // Prefixes: try old format first, then new format
                     featurePrefix = GitConfigUtil.getValue(project, root, PREFIX_FEATURE);
+                    if (featurePrefix == null) {
+                        featurePrefix = GitConfigUtil.getValue(project, root, BRANCH_FEATURE_PREFIX);
+                    }
+                    
                     releasePrefix = GitConfigUtil.getValue(project, root, PREFIX_RELEASE);
+                    if (releasePrefix == null) {
+                        releasePrefix = GitConfigUtil.getValue(project, root, BRANCH_RELEASE_PREFIX);
+                    }
+                    
                     hotfixPrefix = GitConfigUtil.getValue(project, root, PREFIX_HOTFIX);
+                    if (hotfixPrefix == null) {
+                        hotfixPrefix = GitConfigUtil.getValue(project, root, BRANCH_HOTFIX_PREFIX);
+                    }
+                    
                     bugfixPrefix = GitConfigUtil.getValue(project, root, PREFIX_BUGFIX);
+                    if (bugfixPrefix == null) {
+                        bugfixPrefix = GitConfigUtil.getValue(project, root, BRANCH_BUGFIX_PREFIX);
+                    }
+                    
                     supportPrefix = GitConfigUtil.getValue(project, root, PREFIX_SUPPORT);
+                    if (supportPrefix == null) {
+                        supportPrefix = GitConfigUtil.getValue(project, root, BRANCH_SUPPORT_PREFIX);
+                    }
+                    
                     versiontagPrefix = GitConfigUtil.getValue(project, root, PREFIX_VERSIONTAG);
+                    
+                    // Debug output
+                    System.out.println("GitflowConfigUtil.update():");
+                    System.out.println("  isGitflowNext: " + isGitflowNext);
+                    System.out.println("  masterBranch: " + masterBranch);
+                    System.out.println("  developBranch: " + developBranch);
+                    System.out.println("  featurePrefix: " + featurePrefix);
+                    System.out.println("  releasePrefix: " + releasePrefix);
+                    System.out.println("  hotfixPrefix: " + hotfixPrefix);
+                    System.out.println("  bugfixPrefix: " + bugfixPrefix);
                 } catch (VcsException e) {
                     NotifyUtil.notifyError(project, "Config error", e);
                 }
