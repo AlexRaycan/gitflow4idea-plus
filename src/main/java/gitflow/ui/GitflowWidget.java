@@ -211,14 +211,6 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
         GitflowBranchUtil gitflowBranchUtil = GitflowBranchUtilManager.getBranchUtil(repo);
         boolean hasGitflow = gitflowBranchUtil.hasGitflow();
-        
-        // Debug logging
-        System.out.println("GitflowWidget.update() - hasGitflow: " + hasGitflow);
-        if (gitflowBranchUtil != null) {
-            System.out.println("  - master: " + gitflowBranchUtil.getBranchnameMaster());
-            System.out.println("  - develop: " + gitflowBranchUtil.getBranchnameDevelop());
-            System.out.println("  - feature prefix: " + gitflowBranchUtil.getPrefixFeature());
-        }
 
         myText = hasGitflow ? "Gitflow" : "No Gitflow";
         myTooltip = getDisplayableBranchTooltip(repo);

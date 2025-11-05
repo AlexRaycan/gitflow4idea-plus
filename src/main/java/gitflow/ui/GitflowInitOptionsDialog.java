@@ -5,7 +5,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.CollectionComboBoxModel;
-import gitflow.GitflowBranchUtil;
 import gitflow.GitflowInitOptions;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,24 +52,37 @@ public class GitflowInitOptionsDialog extends DialogWrapper {
 
     /**
      * Find the best production branch from existing branches.
-     * Priority: main > master > production > first available branch > "main" as fallback
+     * Priority: main > master > production > trunk > first available branch > "main" as fallback
      */
     private String findBestProductionBranch() {
         if (localBranches.contains("main")) return "main";
         if (localBranches.contains("master")) return "master";
         if (localBranches.contains("production")) return "production";
+        if (localBranches.contains("trunk")) return "trunk";
         if (!localBranches.isEmpty()) return localBranches.get(0);
         return "main";
     }
 
     /**
      * Find the best development branch from existing branches.
-     * Priority: develop > dev > development > "develop" as fallback
+     * Priority: develop > dev > development > staging > test > next > second available branch > "develop" as fallback
      */
     private String findBestDevelopmentBranch() {
         if (localBranches.contains("develop")) return "develop";
         if (localBranches.contains("dev")) return "dev";
         if (localBranches.contains("development")) return "development";
+        if (localBranches.contains("staging")) return "staging";
+        if (localBranches.contains("test")) return "test";
+        if (localBranches.contains("next")) return "next";
+        
+        // If we found production, try to find a second branch that's not production
+        String production = findBestProductionBranch();
+        for (String branch : localBranches) {
+            if (!branch.equals(production)) {
+                return branch;
+            }
+        }
+        
         return "develop";
     }
 

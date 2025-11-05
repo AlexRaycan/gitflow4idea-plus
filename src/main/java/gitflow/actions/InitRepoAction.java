@@ -68,13 +68,9 @@ public class InitRepoAction extends GitflowAction {
                     if (result.success()) {
                         String successMessage = getSuccessMessage();
                         
-                        System.out.println("InitRepoAction: Git flow init success");
-                        
                         // Force config reload BEFORE notifying the widget
                         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
                         gitflowConfigUtil.update();
-                        
-                        System.out.println("InitRepoAction: Config updated - master=" + gitflowConfigUtil.masterBranch + ", develop=" + gitflowConfigUtil.developBranch);
                         
                         // Force branch util refresh
                         GitflowBranchUtilManager.update(myProject);
@@ -87,7 +83,6 @@ public class InitRepoAction extends GitflowAction {
                         
                         // Update the widget AFTER config is reloaded - use invokeLater to ensure UI update
                         ApplicationManager.getApplication().invokeLater(() -> {
-                            System.out.println("InitRepoAction: Notifying repository changed");
                             myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(myRepo);
                         });
                     } else {
